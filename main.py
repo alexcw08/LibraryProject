@@ -1,6 +1,10 @@
 import inquirer
 
 class Library:
+    """ 
+    Library class to represent users library collection. Can hold three 
+    types of items. Add methods available to add to dictionary.
+    """
     def __init__(self) -> None:
         self.books = {}
         self.movies = {}
@@ -12,7 +16,7 @@ class Library:
         print(f'My Collection has:')
         print(f'{len(self.books)} Books \n{len(self.movies)} Movies \n{len(self.videoGames)} Video Games \n')
         print('')
-        
+
     def addBook(self, book):
         """ Takes in a book and adds it to the librarys dictionary. """
         self.books[book.name] = book
@@ -27,6 +31,28 @@ class Library:
         """ Takes in a video game and adds it to the librarys dictionary. """
         self.videoGames[videoGame.name] = videoGame
         print(f'[Success] Video Game successfully added.')
+
+class Book:
+    """ Class representing a book item. """
+    def __init__(self, title, author, genre) -> None:
+        self.name = title
+        self.author = author
+        self.genre = genre
+
+class Movie:
+    """ Class representing a movie item. """
+    def __init__(self, title, director, genre) -> None:
+        self.name = title
+        self.director = director
+        self.genre = genre
+
+class VideoGame:
+    """ Class representing a video game item. """
+    def __init__(self, title, publisher, genre) -> None:
+        self.name = title
+        self.publisher = publisher
+        self.genre = genre
+
 
 if __name__ == "__main__":
     # Ask user what they want to do
