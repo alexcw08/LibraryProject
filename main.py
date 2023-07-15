@@ -1,5 +1,16 @@
 import inquirer
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 class Library:
     """ 
     Library class to represent users library collection. Can hold three 
@@ -13,24 +24,24 @@ class Library:
     def getSummary(self):
         """ Prints a summary of the librarys current holdings. """
         print('')
-        print(f'My Collection has:')
+        print(f'{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}')
         print(f'{len(self.books)} Books \n{len(self.movies)} Movies \n{len(self.videoGames)} Video Games \n')
         print('')
 
     def addBook(self, book):
         """ Takes in a book and adds it to the librarys dictionary. """
         self.books[book.name] = book
-        print(f'[Success]Book successfully added.')
+        print(f'{bcolors.OKGREEN}[Success]Book successfully added.')
 
     def addMovie(self, movie):
         """ Takes in a movie and adds it to the librarys dictionary. """
         self.movies[movie.name] = movie
-        print(f'[Success]Movie successfully added.')
+        print(f'{bcolors.OKGREEN}[Success]Movie successfully added.')
 
     def addVideoGame(self, videoGame):
         """ Takes in a video game and adds it to the librarys dictionary. """
         self.videoGames[videoGame.name] = videoGame
-        print(f'[Success]Video Game successfully added.')
+        print(f'{bcolors.OKGREEN}[Success]Video Game successfully added.')
 
 class Book:
     """ Class representing a book item. """
@@ -56,7 +67,7 @@ class VideoGame:
 
 if __name__ == "__main__":
     # Array holding user choice question / choices
-    userChoices = [inquirer.List('choice', message='What would you like to do?', choices=['[Form]Add a book', '[Form]Add a movie', '[Form]Add a video game', 'Quit'])]
+    userChoices = [inquirer.List('choice', message=f'{bcolors.UNDERLINE}What would you like to do? {bcolors.ENDC}', choices=['[Form]Add a book', '[Form]Add a movie', '[Form]Add a video game', 'Quit'])]
     # Form arrays
     bookForm = [
         inquirer.Text("title", message="What is the title of the book?"),
@@ -89,21 +100,20 @@ if __name__ == "__main__":
                 addBook = Book(newBook['title'], newBook['author'], newBook['genre'])
                 userLibrary.addBook(addBook)
             else:
-                print('[Cancelled]Book was not added.')
+                print(f'{bcolors.FAIL}[Cancelled]Book was not added.')
         elif userRes['choice'] == '[Form]Add a movie':
             newMovie = inquirer.prompt(movieForm)
             if newMovie['continue'] is True:
                 addMovie = Movie(newMovie['title'], newMovie['director'], newMovie['genre'])
                 userLibrary.addMovie(addMovie)
             else:
-                print('[Cancelled]Movie was not added.')
+                print(f'{bcolors.FAIL}[Cancelled]Movie was not added.')
         elif userRes['choice'] == '[Form]Add a video game':
             newVideoGame = inquirer.prompt(videoGameForm)
             if newVideoGame['continue'] is True:
                 addVideoGame = VideoGame(newVideoGame['title'], newVideoGame['publisher'], newVideoGame['genre'])
                 userLibrary.addVideoGame(addVideoGame)
             else:
-                print('[Cancelled]Video game was not added.')
-
+                print(f'{bcolors.FAIL}[Cancelled]Video game was not added.')
         else:
             break
