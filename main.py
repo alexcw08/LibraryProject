@@ -17,9 +17,9 @@ class Library:
     types of items. Add methods available to add to dictionary.
     """
     def __init__(self) -> None:
-        self.books = {}
-        self.movies = {}
-        self.videoGames = {}
+        self.books = []
+        self.movies = []
+        self.videoGames = []
 
     def getSummary(self):
         """ Prints a summary of the librarys current holdings. """
@@ -45,17 +45,18 @@ class Library:
 
     def addBook(self, book):
         """ Takes in a book and adds it to the librarys dictionary. """
-        self.books[book.name] = book
+        # self.books[book.name] = book
+        self.books.append(book)
         print(f'{bcolors.OKGREEN}[Success]Book successfully added.')
 
     def addMovie(self, movie):
         """ Takes in a movie and adds it to the librarys dictionary. """
-        self.movies[movie.name] = movie
+        self.movies.append(movie)
         print(f'{bcolors.OKGREEN}[Success]Movie successfully added.')
 
     def addVideoGame(self, videoGame):
         """ Takes in a video game and adds it to the librarys dictionary. """
-        self.videoGames[videoGame.name] = videoGame
+        self.videoGames.append(videoGame)
         print(f'{bcolors.OKGREEN}[Success]Video Game successfully added.')
 
 class Book:
@@ -105,23 +106,24 @@ if __name__ == "__main__":
     ]
 
     printLibraryQ = [
-        inquirer.List('choice', message=f'{bcolors.UNDERLINE}View options{bcolors.ENDC}', choices=['Basic', 'Detailed'])
+        inquirer.List('choice', message=f'{bcolors.UNDERLINE}View options{bcolors.ENDC}', choices=['Basic', 'Detailed', 'Go Back'])
     ]
 
     userLibrary = Library()
-    book1 = Book('My Favorite Book', 'Jane Doe', 'Action')
-    book2 = Book('My Other Book', 'Jane Doe', 'Horror')
-    book3 = Book('Not So Book', 'Bob Mall', 'Romance')
+    # book1 = Book('My Favorite Book', 'Jane Doe', 'Action')
+    # book2 = Book('My Other Book', 'Jane Doe', 'Horror')
+    # book3 = Book('Not So Book', 'Bob Mall', 'Romance')
 
-    movie1 = Movie('First Movie', 'Bob Lob', 'Action')
-    videoGame1 = VideoGame('First Game', 'Bob Lob', 'RPG')
+    # movie1 = Movie('First Movie', 'Bob Lob', 'Action')
+    # videoGame1 = VideoGame('First Game', 'Bob Lob', 'RPG')
 
-    userLibrary.addBook(book1)
-    userLibrary.addBook(book2)
-    userLibrary.addBook(book3)
-    userLibrary.addMovie(movie1)
-    userLibrary.addVideoGame(videoGame1)
+    # userLibrary.addBook(book1)
+    # userLibrary.addBook(book2)
+    # userLibrary.addBook(book3)
+    # userLibrary.addMovie(movie1)
+    # userLibrary.addVideoGame(videoGame1)
 
+    print('')
 
     print(f'{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select')
     while True:
@@ -153,24 +155,35 @@ if __name__ == "__main__":
                 print(f'{bcolors.FAIL}[Error] Sorry, the library is empty.')
             else:
                 res = inquirer.prompt(printLibraryQ)
+                books = userLibrary.getBooks()
+                movies = userLibrary.getMovies()
+                videoGames = userLibrary.getVideoGames()
                 if res['choice'] == 'Basic':
-                    # print Title, Author for each item
-                    books = userLibrary.getBooks()
-                    print(books)
-                    # for book in books:
-                    #     print(book)
-                        # print(book.title, book.author)
+                    print('')
+                    print('')
+                    for book in books:
+                        print(f'{book.name}, {book.author}')
+                    for movie in movies:
+                        print(f'{movie.name}, {movie.director}')
+                    for videoGame in videoGames:
+                        print(f'{videoGame.name}, {videoGame.publisher}')
+                    print('')
+                    print('')
 
-                    # movies = userLibrary.getMovies()
-                    # for movie in movies:
-                    #     print(movie.title, movie.director)
-
-                    # videoGames = userLibrary.getVideoGames()
-                    # for videoGame in videoGames:
-                    #     print(videoGame.title, videoGame.publisher)
-
-                elif res == 'Detailed':
+                elif res['choice'] == 'Detailed':
+                    print('')
+                    print('')
                     # print by category and above
-                    pass
+                    print(f'{bcolors.OKCYAN}{bcolors.UNDERLINE}Books{bcolors.ENDC}')
+                    for book in books:
+                        print(f'{book.name}, {book.author}')
+                    print(f'{bcolors.OKCYAN}{bcolors.UNDERLINE}Movies{bcolors.ENDC}')
+                    for movie in movies:
+                        print(f'{movie.name}, {movie.director}')
+                    print(f'{bcolors.OKCYAN}{bcolors.UNDERLINE}Video Games{bcolors.ENDC}')
+                    for videoGame in videoGames:
+                        print(f'{videoGame.name}, {videoGame.publisher}')
+                    print('')
+                    print('')
         else:
             break
