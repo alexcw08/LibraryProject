@@ -27,6 +27,21 @@ class Library:
         print(f'{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}')
         print(f'{len(self.books)} Books \n{len(self.movies)} Movies \n{len(self.videoGames)} Video Games \n')
         print('')
+    
+    def getLength(self):
+        return len(self.books) + len(self.movies) + len(self.videoGames)
+
+    def getBooks(self):
+        """ Returns the dictionary of books. """
+        return self.books
+
+    def getMovies(self):
+        """ Returns the dictionary of movies. """
+        return self.movies
+
+    def getVideoGames(self):
+        """ Returns the dictionary of video games. """
+        return self.videoGames
 
     def addBook(self, book):
         """ Takes in a book and adds it to the librarys dictionary. """
@@ -67,7 +82,7 @@ class VideoGame:
 
 if __name__ == "__main__":
     # Array holding user choice question / choices
-    userChoices = [inquirer.List('choice', message=f'{bcolors.UNDERLINE}What would you like to do? {bcolors.ENDC}', choices=['[Form]Add a book', '[Form]Add a movie', '[Form]Add a video game', 'Quit'])]
+    userChoices = [inquirer.List('choice', message=f'{bcolors.UNDERLINE}What would you like to do? {bcolors.ENDC}', choices=['[Form]Add a book', '[Form]Add a movie', '[Form]Add a video game', 'View Collection' ,'Quit'])]
     # Form arrays
     bookForm = [
         inquirer.Text("title", message="What is the title of the book?"),
@@ -89,8 +104,26 @@ if __name__ == "__main__":
         inquirer.Confirm("continue", message="Finish submitting this video game?"),
     ]
 
-    userLibrary = Library()
+    printLibraryQ = [
+        inquirer.List('choice', message=f'{bcolors.UNDERLINE}View options{bcolors.ENDC}', choices=['Basic', 'Detailed'])
+    ]
 
+    userLibrary = Library()
+    book1 = Book('My Favorite Book', 'Jane Doe', 'Action')
+    book2 = Book('My Other Book', 'Jane Doe', 'Horror')
+    book3 = Book('Not So Book', 'Bob Mall', 'Romance')
+
+    movie1 = Movie('First Movie', 'Bob Lob', 'Action')
+    videoGame1 = VideoGame('First Game', 'Bob Lob', 'RPG')
+
+    userLibrary.addBook(book1)
+    userLibrary.addBook(book2)
+    userLibrary.addBook(book3)
+    userLibrary.addMovie(movie1)
+    userLibrary.addVideoGame(videoGame1)
+
+
+    print(f'{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select')
     while True:
         userLibrary.getSummary()
         userRes = inquirer.prompt(userChoices)
@@ -115,5 +148,29 @@ if __name__ == "__main__":
                 userLibrary.addVideoGame(addVideoGame)
             else:
                 print(f'{bcolors.FAIL}[Cancelled]Video game was not added.')
+        elif userRes['choice'] == 'View Collection':
+            if userLibrary.getLength() == 0:
+                print(f'{bcolors.FAIL}[Error] Sorry, the library is empty.')
+            else:
+                res = inquirer.prompt(printLibraryQ)
+                if res['choice'] == 'Basic':
+                    # print Title, Author for each item
+                    books = userLibrary.getBooks()
+                    print(books)
+                    # for book in books:
+                    #     print(book)
+                        # print(book.title, book.author)
+
+                    # movies = userLibrary.getMovies()
+                    # for movie in movies:
+                    #     print(movie.title, movie.director)
+
+                    # videoGames = userLibrary.getVideoGames()
+                    # for videoGame in videoGames:
+                    #     print(videoGame.title, videoGame.publisher)
+
+                elif res == 'Detailed':
+                    # print by category and above
+                    pass
         else:
             break
