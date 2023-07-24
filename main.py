@@ -83,13 +83,17 @@ class VideoGame:
 
 if __name__ == "__main__":
     # Array holding user choice question / choices
-    userChoices = [inquirer.List('choice', message=f'{bcolors.UNDERLINE}What would you like to do? {bcolors.ENDC}', choices=['[Form]Add a book', '[Form]Add a movie', '[Form]Add a video game', 'View Collection' ,'Quit'])]
+    userChoices = [inquirer.List('choice', message=f'{bcolors.UNDERLINE}What would you like to do? {bcolors.ENDC}', choices=['[Form]Add a book', '[Form]Add a movie', '[Form]Add a video game', '[Advanced]Import a book',  'View Collection' ,'Quit'])]
     # Form arrays
     bookForm = [
         inquirer.Text("title", message="What is the title of the book?"),
         inquirer.Text("author", message="Who is the author of the book?"),
         inquirer.Text("genre", message="What is the genre of the book?"),
         inquirer.Confirm("continue", message="Finish submitting this book?"),]
+
+    importBook = [
+        inquirer.Text('isbn', message='Enter the ISBN for your book')
+    ]
 
     movieForm = [
         inquirer.Text("title", message="What is the title of the movie?"),
@@ -110,19 +114,6 @@ if __name__ == "__main__":
     ]
 
     userLibrary = Library()
-    # book1 = Book('My Favorite Book', 'Jane Doe', 'Action')
-    # book2 = Book('My Other Book', 'Jane Doe', 'Horror')
-    # book3 = Book('Not So Book', 'Bob Mall', 'Romance')
-
-    # movie1 = Movie('First Movie', 'Bob Lob', 'Action')
-    # videoGame1 = VideoGame('First Game', 'Bob Lob', 'RPG')
-
-    # userLibrary.addBook(book1)
-    # userLibrary.addBook(book2)
-    # userLibrary.addBook(book3)
-    # userLibrary.addMovie(movie1)
-    # userLibrary.addVideoGame(videoGame1)
-
     print('')
 
     print(f'{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select')
@@ -136,6 +127,14 @@ if __name__ == "__main__":
                 userLibrary.addBook(addBook)
             else:
                 print(f'{bcolors.FAIL}[Cancelled]Book was not added.')
+        elif userRes['choice'] == '[Advanced]Import a book':
+            print('')
+            print(f'{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC}')
+            print('Example: 9780140817744')
+            print('Nineteen Eighty-Four, George Orwell')
+            print('')
+            userISBN = inquirer.prompt(importBook)
+            userISBN2 = inquirer.prompt(importBook)
         elif userRes['choice'] == '[Form]Add a movie':
             newMovie = inquirer.prompt(movieForm)
             if newMovie['continue'] is True:
