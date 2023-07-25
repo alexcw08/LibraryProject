@@ -1,4 +1,10 @@
 import inquirer
+import requests 
+
+from dotenv import load_dotenv
+import os 
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
 
 class bcolors:
     HEADER = '\033[95m'
@@ -120,6 +126,7 @@ if __name__ == "__main__":
     while True:
         userLibrary.getSummary()
         userRes = inquirer.prompt(userChoices)
+        # User chooses to add BOOK
         if userRes['choice'] == '[Form]Add a book':
             newBook = inquirer.prompt(bookForm)
             if newBook['continue'] is True:
@@ -127,14 +134,20 @@ if __name__ == "__main__":
                 userLibrary.addBook(addBook)
             else:
                 print(f'{bcolors.FAIL}[Cancelled]Book was not added.')
+        # User chooses to add IMPORT A BOOK [USES API]
         elif userRes['choice'] == '[Advanced]Import a book':
             print('')
             print(f'{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC}')
             print('Example: 9780140817744')
             print('Nineteen Eighty-Four, George Orwell')
             print('')
-            userISBN = inquirer.prompt(importBook)
-            userISBN2 = inquirer.prompt(importBook)
+            isbn = inquirer.prompt(importBook)
+            api_url = f'https://www.googleapis.com/books/v1/volumes?q=isbn{isbn}&key={API_KEY}'
+            # print('fetching', api_url)
+            response = requests.get(api_url)
+            newRes = response.json()
+            # print(newRes['items'][0]['volumeInfo'])
+        # User chooses to add MOVIE
         elif userRes['choice'] == '[Form]Add a movie':
             newMovie = inquirer.prompt(movieForm)
             if newMovie['continue'] is True:
@@ -142,6 +155,7 @@ if __name__ == "__main__":
                 userLibrary.addMovie(addMovie)
             else:
                 print(f'{bcolors.FAIL}[Cancelled]Movie was not added.')
+        # User chooses to add VIDEO GAME
         elif userRes['choice'] == '[Form]Add a video game':
             newVideoGame = inquirer.prompt(videoGameForm)
             if newVideoGame['continue'] is True:
@@ -149,6 +163,7 @@ if __name__ == "__main__":
                 userLibrary.addVideoGame(addVideoGame)
             else:
                 print(f'{bcolors.FAIL}[Cancelled]Video game was not added.')
+        # User chooses to VIEW COLLECTION
         elif userRes['choice'] == 'View Collection':
             if userLibrary.getLength() == 0:
                 print(f'{bcolors.FAIL}[Error] Sorry, the library is empty.')
@@ -184,5 +199,6 @@ if __name__ == "__main__":
                         print(f'{videoGame.name}, {videoGame.publisher}')
                     print('')
                     print('')
+        # User chooses QUIT
         else:
             break
