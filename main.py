@@ -1,87 +1,99 @@
-import inquirer
-import requests 
+import os
 
+import inquirer
+import requests
 from dotenv import load_dotenv
-import os 
+
 load_dotenv()
-API_KEY = os.getenv('API_KEY')
+API_KEY = os.getenv("API_KEY")
+
 
 class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKCYAN = "\033[96m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+
 
 class Library:
-    """ 
-    Library class to represent users library collection. Can hold three 
+    """
+    Library class to represent users library collection. Can hold three
     types of items. Add methods available to add to dictionary.
     """
+
     def __init__(self) -> None:
-        self.books = []
-        self.movies = []
-        self.videoGames = []
+        self.books: list[object] = []
+        self.movies: list[object] = []
+        self.videoGames: list[object] = []
 
     def getSummary(self):
-        """ Prints a summary of the librarys current holdings. """
-        print('')
-        print(f'{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}')
-        print(f'{len(self.books)} Books \n{len(self.movies)} Movies \n{len(self.videoGames)} Video Games \n')
-        print('')
-    
+        """Prints a summary of the librarys current holdings."""
+        print("")
+        print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
+        print(
+            f"{len(self.books)} Books \n{len(self.movies)} Movies \n{len(self.videoGames)} Video Games \n"
+        )
+        print("")
+
     def getLength(self):
         return len(self.books) + len(self.movies) + len(self.videoGames)
 
     def getBooks(self):
-        """ Returns the dictionary of books. """
+        """Returns the dictionary of books."""
         return self.books
 
     def getMovies(self):
-        """ Returns the dictionary of movies. """
+        """Returns the dictionary of movies."""
         return self.movies
 
     def getVideoGames(self):
-        """ Returns the dictionary of video games. """
+        """Returns the dictionary of video games."""
         return self.videoGames
 
     def addBook(self, book):
-        """ Takes in a book and adds it to the librarys dictionary. """
+        """Takes in a book and adds it to the librarys dictionary."""
         # self.books[book.name] = book
         self.books.append(book)
-        print(f'{bcolors.OKGREEN}[Success]Book successfully added.')
+        print(f"{bcolors.OKGREEN}[Success]Book successfully added.")
 
     def addMovie(self, movie):
-        """ Takes in a movie and adds it to the librarys dictionary. """
+        """Takes in a movie and adds it to the librarys dictionary."""
         self.movies.append(movie)
-        print(f'{bcolors.OKGREEN}[Success]Movie successfully added.')
+        print(f"{bcolors.OKGREEN}[Success]Movie successfully added.")
 
     def addVideoGame(self, videoGame):
-        """ Takes in a video game and adds it to the librarys dictionary. """
+        """Takes in a video game and adds it to the librarys dictionary."""
         self.videoGames.append(videoGame)
-        print(f'{bcolors.OKGREEN}[Success]Video Game successfully added.')
+        print(f"{bcolors.OKGREEN}[Success]Video Game successfully added.")
+
 
 class Book:
-    """ Class representing a book item. """
-    def __init__(self, title, author, genre) -> None:
+    """Class representing a book item."""
+
+    def __init__(self, title:str, author:str, genre:str) -> None:
         self.name = title
         self.author = author
         self.genre = genre
 
+
 class Movie:
-    """ Class representing a movie item. """
-    def __init__(self, title, director, genre) -> None:
+    """Class representing a movie item."""
+
+    def __init__(self, title:str, director:str, genre:str) -> None:
         self.name = title
         self.director = director
         self.genre = genre
 
+
 class VideoGame:
-    """ Class representing a video game item. """
-    def __init__(self, title, publisher, genre) -> None:
+    """Class representing a video game item."""
+
+    def __init__(self, title:str, publisher:str, genre:str) -> None:
         self.name = title
         self.publisher = publisher
         self.genre = genre
@@ -89,17 +101,29 @@ class VideoGame:
 
 if __name__ == "__main__":
     # Array holding user choice question / choices
-    userChoices = [inquirer.List('choice', message=f'{bcolors.UNDERLINE}What would you like to do? {bcolors.ENDC}', choices=['[Form]Add a book', '[Form]Add a movie', '[Form]Add a video game', '[Advanced]Import a book',  'View Collection' ,'Quit'])]
+    userChoices = [
+        inquirer.List(
+            "choice",
+            message=f"{bcolors.UNDERLINE}What would you like to do? {bcolors.ENDC}",
+            choices=[
+                "[Form]Add a book",
+                "[Form]Add a movie",
+                "[Form]Add a video game",
+                "[Advanced]Import a book",
+                "View Collection",
+                "Quit",
+            ],
+        )
+    ]
     # Form arrays
     bookForm = [
         inquirer.Text("title", message="What is the title of the book?"),
         inquirer.Text("author", message="Who is the author of the book?"),
         inquirer.Text("genre", message="What is the genre of the book?"),
-        inquirer.Confirm("continue", message="Finish submitting this book?"),]
-
-    importBook = [
-        inquirer.Text('isbn', message='Enter the ISBN for your book')
+        inquirer.Confirm("continue", message="Finish submitting this book?"),
     ]
+
+    importBook = [inquirer.Text("isbn", message="Enter the ISBN for your book")]
 
     movieForm = [
         inquirer.Text("title", message="What is the title of the movie?"),
@@ -116,89 +140,102 @@ if __name__ == "__main__":
     ]
 
     printLibraryQ = [
-        inquirer.List('choice', message=f'{bcolors.UNDERLINE}View options{bcolors.ENDC}', choices=['Basic', 'Detailed', 'Go Back'])
+        inquirer.List(
+            "choice",
+            message=f"{bcolors.UNDERLINE}View options{bcolors.ENDC}",
+            choices=["Basic", "Detailed", "Go Back"],
+        )
     ]
 
     userLibrary = Library()
-    print('')
+    print("")
 
-    print(f'{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select')
+    print(f"{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select")
     while True:
         userLibrary.getSummary()
         userRes = inquirer.prompt(userChoices)
         # User chooses to add BOOK
-        if userRes['choice'] == '[Form]Add a book':
+        if userRes["choice"] == "[Form]Add a book":
             newBook = inquirer.prompt(bookForm)
-            if newBook['continue'] is True:
-                addBook = Book(newBook['title'], newBook['author'], newBook['genre'])
+            if newBook["continue"] is True:
+                addBook = Book(newBook["title"], newBook["author"], newBook["genre"])
                 userLibrary.addBook(addBook)
             else:
-                print(f'{bcolors.FAIL}[Cancelled]Book was not added.')
+                print(f"{bcolors.FAIL}[Cancelled]Book was not added.")
         # User chooses to add IMPORT A BOOK [USES API]
-        elif userRes['choice'] == '[Advanced]Import a book':
-            print('')
-            print(f'{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC}')
-            print('Example: 9780140817744')
-            print('Nineteen Eighty-Four, George Orwell')
-            print('')
+        elif userRes["choice"] == "[Advanced]Import a book":
+            print("")
+            print(f"{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC}")
+            print("Example: 9780140817744")
+            print("Nineteen Eighty-Four, George Orwell")
+            print("")
             isbn = inquirer.prompt(importBook)
-            api_url = f'https://www.googleapis.com/books/v1/volumes?q=isbn{isbn}&key={API_KEY}'
+            api_url = f"https://www.googleapis.com/books/v1/volumes?q=isbn{isbn}&key={API_KEY}"
             # print('fetching', api_url)
             response = requests.get(api_url)
+            print(response)
             newRes = response.json()
-            # print(newRes['items'][0]['volumeInfo'])
+            print(newRes["items"][0]["volumeInfo"])
         # User chooses to add MOVIE
-        elif userRes['choice'] == '[Form]Add a movie':
+        elif userRes["choice"] == "[Form]Add a movie":
             newMovie = inquirer.prompt(movieForm)
-            if newMovie['continue'] is True:
-                addMovie = Movie(newMovie['title'], newMovie['director'], newMovie['genre'])
+            if newMovie["continue"] is True:
+                addMovie = Movie(
+                    newMovie["title"], newMovie["director"], newMovie["genre"]
+                )
                 userLibrary.addMovie(addMovie)
             else:
-                print(f'{bcolors.FAIL}[Cancelled]Movie was not added.')
+                print(f"{bcolors.FAIL}[Cancelled]Movie was not added.")
         # User chooses to add VIDEO GAME
-        elif userRes['choice'] == '[Form]Add a video game':
+        elif userRes["choice"] == "[Form]Add a video game":
             newVideoGame = inquirer.prompt(videoGameForm)
-            if newVideoGame['continue'] is True:
-                addVideoGame = VideoGame(newVideoGame['title'], newVideoGame['publisher'], newVideoGame['genre'])
+            if newVideoGame["continue"] is True:
+                addVideoGame = VideoGame(
+                    newVideoGame["title"],
+                    newVideoGame["publisher"],
+                    newVideoGame["genre"],
+                )
                 userLibrary.addVideoGame(addVideoGame)
             else:
-                print(f'{bcolors.FAIL}[Cancelled]Video game was not added.')
+                print(f"{bcolors.FAIL}[Cancelled]Video game was not added.")
         # User chooses to VIEW COLLECTION
-        elif userRes['choice'] == 'View Collection':
+        elif userRes["choice"] == "View Collection":
             if userLibrary.getLength() == 0:
-                print(f'{bcolors.FAIL}[Error] Sorry, the library is empty.')
+                print(f"{bcolors.FAIL}[Error] Sorry, the library is empty.")
             else:
                 res = inquirer.prompt(printLibraryQ)
                 books = userLibrary.getBooks()
                 movies = userLibrary.getMovies()
                 videoGames = userLibrary.getVideoGames()
-                if res['choice'] == 'Basic':
-                    print('')
-                    print('')
+                if res["choice"] == "Basic":
+                    print("")
+                    print("")
                     for book in books:
-                        print(f'{book.name}, {book.author}')
+                        print(f"{book.name}, {book.author}")
                     for movie in movies:
-                        print(f'{movie.name}, {movie.director}')
+                        print(f"{movie.name}, {movie.director}")
                     for videoGame in videoGames:
-                        print(f'{videoGame.name}, {videoGame.publisher}')
-                    print('')
-                    print('')
+                        print(f"{videoGame.name}, {videoGame.publisher}")
+                    print("")
+                    print("")
 
-                elif res['choice'] == 'Detailed':
-                    print('')
-                    print('')
+                elif res["choice"] == "Detailed":
+                    print("")
+                    print("")
                     # print by category and above
-                    print(f'{bcolors.OKCYAN}{bcolors.UNDERLINE}Books{bcolors.ENDC}')
+                    print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Books{bcolors.ENDC}")
                     for book in books:
-                        print(f'{book.name}, {book.author}')
-                    print(f'{bcolors.OKCYAN}{bcolors.UNDERLINE}Movies{bcolors.ENDC}')
+                        print(f"{book.name}, {book.author}")
+                    print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Movies{bcolors.ENDC}")
                     for movie in movies:
-                        print(f'{movie.name}, {movie.director}')
-                    print(f'{bcolors.OKCYAN}{bcolors.UNDERLINE}Video Games{bcolors.ENDC}')
+                        print(f"{movie.name}, {movie.director}")
+                    print(
+                        f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Video Games{bcolors.ENDC}"
+                    )
                     for videoGame in videoGames:
-                        print(f'{videoGame.name}, {videoGame.publisher}')
-                    print('')
-                    print('')
+                        print(f"{videoGame.name}, {videoGame.publisher}")
+                    print("")
+                    print("")
         # User chooses QUIT
         else:
             break
