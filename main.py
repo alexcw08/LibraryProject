@@ -3,6 +3,8 @@ import os
 import inquirer
 import requests
 from dotenv import load_dotenv
+import json
+import socket as s
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
@@ -33,12 +35,10 @@ class Library:
 
     def getSummary(self):
         """Prints a summary of the librarys current holdings."""
-        print("")
-        print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
+        print(f"\n{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
         print(
             f"{len(self.books)} Books \n{len(self.movies)} Movies \n{len(self.videoGames)} Video Games \n"
         )
-        print("")
 
     def getLength(self):
         return len(self.books) + len(self.movies) + len(self.videoGames)
@@ -70,6 +70,72 @@ class Library:
         """Takes in a video game and adds it to the librarys dictionary."""
         self.videoGames.append(videoGame)
         print(f"{bcolors.OKGREEN}[Success]Video Game successfully added.")
+
+    def importBook(self):
+        print(f"\n{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC}")
+        print("Example: 9780140817744")
+        print(f"Nineteen Eighty-Four, George Orwell \n")
+        isbn = inquirer.prompt(importBook)
+        data = self.callAPI(isbn)
+        self.callMicroservice(data)
+
+    def callAPI(self, isbn):
+        api_url = f"https://www.googleapis.com/books/v1/volumes?q=isbn{isbn}&key={API_KEY}"
+        response = requests.get(api_url)
+        data = response.json()
+        data = data['items'][0]['volumeInfo']
+        data = json.dumps(data)
+        return data
+
+
+    def callMicroservice(self, data):
+
+        # connection to server
+        HOST = 'localhost'
+        PORT = 10103
+        connection_socket = s.socket(s.AF_INET, s.SOCK_STREAM)
+        print(f"Connecting to {HOST}:{PORT}...")
+        connection_socket.connect((HOST, PORT))
+
+        # message
+
+        # send message length
+        # (required for when the server switches roles from recv'ing to send'ing)
+        msg_len = str(len(data))
+        print(f"Sending length of message to server:\n\t{msg_len} characters")
+        connection_socket.send(msg_len.encode())
+        # receive length verification:
+        length_verification = connection_socket.recv(1024).decode()
+
+        if length_verification == msg_len:
+            # send message
+            print(f"Sending the following message to the server:\n\t{data}")
+            connection_socket.send(data.encode())
+            print("Send successful.")
+
+            # recv message
+            full_msg = ""
+            while True:
+                msg = connection_socket.recv(1024).decode()
+                # print(f"Message received:\n\t{msg}")
+                full_msg += msg
+
+                # full message received
+                if not msg:
+
+                    # recv'd message formats
+                    print(f"Full data received as string: {full_msg}")
+                    msg_json = json.loads(full_msg)
+                    # print(f"Jason Object output: {msg_json}")
+                    print("Full message converted to dumped json\n",
+                        json.dumps(msg_json, indent=4))
+
+                    connection_socket.close()
+                    print("Socket closed.")
+                    break
+        else:
+            connection_socket.close()
+            print("Socket closed.")
 
 
 class Book:
@@ -148,7 +214,6 @@ if __name__ == "__main__":
     ]
 
     userLibrary = Library()
-    print("")
 
     print(f"{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select")
     while True:
@@ -164,18 +229,7 @@ if __name__ == "__main__":
                 print(f"{bcolors.FAIL}[Cancelled]Book was not added.")
         # User chooses to add IMPORT A BOOK [USES API]
         elif userRes["choice"] == "[Advanced]Import a book":
-            print("")
-            print(f"{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC}")
-            print("Example: 9780140817744")
-            print("Nineteen Eighty-Four, George Orwell")
-            print("")
-            isbn = inquirer.prompt(importBook)
-            api_url = f"https://www.googleapis.com/books/v1/volumes?q=isbn{isbn}&key={API_KEY}"
-            # print('fetching', api_url)
-            response = requests.get(api_url)
-            print(response)
-            newRes = response.json()
-            print(newRes["items"][0]["volumeInfo"])
+            userLibrary.importBook()
         # User chooses to add MOVIE
         elif userRes["choice"] == "[Form]Add a movie":
             newMovie = inquirer.prompt(movieForm)
