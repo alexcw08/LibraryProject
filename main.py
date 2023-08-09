@@ -1,5 +1,4 @@
 import os
-
 import inquirer
 import requests
 from dotenv import load_dotenv
@@ -20,7 +19,6 @@ class bcolors:
     ENDC = "\033[0m"
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
-
 
 class Library:
     """
@@ -137,10 +135,8 @@ class Library:
             connection_socket.close()
             print("Socket closed.")
 
-
 class Book:
     """Class representing a book item."""
-
     def __init__(self, title:str, author:str, genre:str) -> None:
         self.name = title
         self.author = author
@@ -149,7 +145,6 @@ class Book:
 
 class Movie:
     """Class representing a movie item."""
-
     def __init__(self, title:str, director:str, genre:str) -> None:
         self.name = title
         self.director = director
@@ -158,16 +153,12 @@ class Movie:
 
 class VideoGame:
     """Class representing a video game item."""
-
     def __init__(self, title:str, publisher:str, genre:str) -> None:
         self.name = title
         self.publisher = publisher
         self.genre = genre
 
-
-if __name__ == "__main__":
-    # Array holding user choice question / choices
-    userChoices = [
+userChoices = [
         inquirer.List(
             "choice",
             message=f"{bcolors.UNDERLINE}What would you like to do? {bcolors.ENDC}",
@@ -181,41 +172,43 @@ if __name__ == "__main__":
             ],
         )
     ]
-    # Form arrays
-    bookForm = [
+
+bookForm = [
         inquirer.Text("title", message="What is the title of the book?"),
         inquirer.Text("author", message="Who is the author of the book?"),
         inquirer.Text("genre", message="What is the genre of the book?"),
         inquirer.Confirm("continue", message="Finish submitting this book?"),
-    ]
+]
 
-    importBook = [inquirer.Text("isbn", message="Enter the ISBN for your book")]
-
-    movieForm = [
+movieForm = [
         inquirer.Text("title", message="What is the title of the movie?"),
         inquirer.Text("director", message="Who is the director of the movie?"),
         inquirer.Text("genre", message="What is the genre of the movie?"),
         inquirer.Confirm("continue", message="Finish submitting this movie?"),
-    ]
+]
 
-    videoGameForm = [
+importBook = [inquirer.Text("isbn", message="Enter the ISBN for your book")]
+
+videoGameForm = [
         inquirer.Text("title", message="What is the title of the video game?"),
         inquirer.Text("publisher", message="Who is the publisher of the video game?"),
         inquirer.Text("genre", message="What is the genre of the video game?"),
         inquirer.Confirm("continue", message="Finish submitting this video game?"),
-    ]
+]
 
-    printLibraryQ = [
+printLibraryQ = [
         inquirer.List(
             "choice",
             message=f"{bcolors.UNDERLINE}View options{bcolors.ENDC}",
             choices=["Basic", "Detailed", "Go Back"],
         )
-    ]
+]
+
+if __name__ == "__main__":
 
     userLibrary = Library()
-
     print(f"{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select")
+
     while True:
         userLibrary.getSummary()
         userRes = inquirer.prompt(userChoices)
