@@ -25,7 +25,6 @@ class Library:
     Library class to represent users library collection. Can hold three
     types of items. Add methods available to add to dictionary.
     """
-
     def __init__(self) -> None:
         self.books: list[object] = []
         self.movies: list[object] = []
@@ -33,7 +32,7 @@ class Library:
 
     def getSummary(self):
         """Prints a summary of the librarys current holdings."""
-        print(f"\n{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
+        print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
         print(
             f"{len(self.books)} Books \n{len(self.movies)} Movies \n{len(self.videoGames)} Video Games \n"
         )
@@ -53,21 +52,43 @@ class Library:
         """Returns the dictionary of video games."""
         return self.videoGames
 
-    def addBook(self, book):
+    def addBook(self):
         """Takes in a book and adds it to the librarys dictionary."""
-        # self.books[book.name] = book
-        self.books.append(book)
-        print(f"{bcolors.OKGREEN}[Success]Book successfully added.")
+        newBook = inquirer.prompt(bookForm)
+        if newBook["continue"] is True:
+            book = Book(newBook["title"], newBook["author"], newBook["genre"])
+            self.books.append(book)
+            print(f"{bcolors.OKGREEN}[Success]Book successfully added. \n")
+        else:
+            print(f"{bcolors.FAIL}[Cancelled]Book was not added. \n")
 
-    def addMovie(self, movie):
+    def addMovie(self):
         """Takes in a movie and adds it to the librarys dictionary."""
-        self.movies.append(movie)
-        print(f"{bcolors.OKGREEN}[Success]Movie successfully added.")
+        newMovie = inquirer.prompt(movieForm)
+        if newMovie["continue"] is True:
+            movie = Movie(
+                newMovie["title"], newMovie["director"], newMovie["genre"]
+            )
+            self.movies.append(movie)
+            print(f"{bcolors.OKGREEN}[Success]Movie successfully added. \n")
+        else:
+            print(f"{bcolors.FAIL}[Cancelled]Movie was not added. \n")
 
-    def addVideoGame(self, videoGame):
+
+    def addVideoGame(self):
         """Takes in a video game and adds it to the librarys dictionary."""
-        self.videoGames.append(videoGame)
-        print(f"{bcolors.OKGREEN}[Success]Video Game successfully added.")
+        newVideoGame = inquirer.prompt(videoGameForm)
+        if newVideoGame["continue"] is True:
+            videoGame = VideoGame(
+                newVideoGame["title"],
+                newVideoGame["publisher"],
+                newVideoGame["genre"],
+            )
+            self.videoGames.append(videoGame)
+            print(f"{bcolors.OKGREEN}[Success]Video Game successfully added.\n")
+        else:
+            print(f"{bcolors.FAIL}[Cancelled]Video game was not added.\n")
+        
 
     def importBook(self):
         print(f"\n{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC}")
@@ -87,15 +108,12 @@ class Library:
 
 
     def callMicroservice(self, data):
-
         # connection to server
         HOST = 'localhost'
         PORT = 10103
         connection_socket = s.socket(s.AF_INET, s.SOCK_STREAM)
         print(f"Connecting to {HOST}:{PORT}...")
         connection_socket.connect((HOST, PORT))
-
-        # message
 
         # send message length
         # (required for when the server switches roles from recv'ing to send'ing)
@@ -134,6 +152,34 @@ class Library:
         else:
             connection_socket.close()
             print("Socket closed.")
+    
+    def displayCol(self):
+        res = inquirer.prompt(printLibraryQ)
+        books = userLibrary.getBooks()
+        movies = userLibrary.getMovies()
+        videoGames = userLibrary.getVideoGames()
+        if res["choice"] == "Basic":
+            for book in books:
+                print(f"{book.name}, {book.author}")
+            for movie in movies:
+                print(f"{movie.name}, {movie.director}")
+            for videoGame in videoGames:
+                print(f"{videoGame.name}, {videoGame.publisher}")
+
+        elif res["choice"] == "Detailed":
+            # print by category and above
+            print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Books{bcolors.ENDC}")
+            for book in books:
+                print(f"{book.name}, {book.author}")
+            print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Movies{bcolors.ENDC}")
+            for movie in movies:
+                print(f"{movie.name}, {movie.director}")
+            print(
+                f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Video Games{bcolors.ENDC}"
+            )
+            for videoGame in videoGames:
+                print(f"{videoGame.name}, {videoGame.publisher}")
+
 
 class Book:
     """Class representing a book item."""
@@ -205,84 +251,24 @@ printLibraryQ = [
 ]
 
 if __name__ == "__main__":
-
     userLibrary = Library()
     print(f"{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select")
 
     while True:
         userLibrary.getSummary()
         userRes = inquirer.prompt(userChoices)
-        # User chooses to add BOOK
         if userRes["choice"] == "[Form]Add a book":
-            newBook = inquirer.prompt(bookForm)
-            if newBook["continue"] is True:
-                addBook = Book(newBook["title"], newBook["author"], newBook["genre"])
-                userLibrary.addBook(addBook)
-            else:
-                print(f"{bcolors.FAIL}[Cancelled]Book was not added.")
-        # User chooses to add IMPORT A BOOK [USES API]
+            userLibrary.addBook()
         elif userRes["choice"] == "[Advanced]Import a book":
             userLibrary.importBook()
-        # User chooses to add MOVIE
         elif userRes["choice"] == "[Form]Add a movie":
-            newMovie = inquirer.prompt(movieForm)
-            if newMovie["continue"] is True:
-                addMovie = Movie(
-                    newMovie["title"], newMovie["director"], newMovie["genre"]
-                )
-                userLibrary.addMovie(addMovie)
-            else:
-                print(f"{bcolors.FAIL}[Cancelled]Movie was not added.")
-        # User chooses to add VIDEO GAME
+            userLibrary.addMovie()
         elif userRes["choice"] == "[Form]Add a video game":
-            newVideoGame = inquirer.prompt(videoGameForm)
-            if newVideoGame["continue"] is True:
-                addVideoGame = VideoGame(
-                    newVideoGame["title"],
-                    newVideoGame["publisher"],
-                    newVideoGame["genre"],
-                )
-                userLibrary.addVideoGame(addVideoGame)
-            else:
-                print(f"{bcolors.FAIL}[Cancelled]Video game was not added.")
-        # User chooses to VIEW COLLECTION
+            userLibrary.addVideoGame()
         elif userRes["choice"] == "View Collection":
             if userLibrary.getLength() == 0:
                 print(f"{bcolors.FAIL}[Error] Sorry, the library is empty.")
             else:
-                res = inquirer.prompt(printLibraryQ)
-                books = userLibrary.getBooks()
-                movies = userLibrary.getMovies()
-                videoGames = userLibrary.getVideoGames()
-                if res["choice"] == "Basic":
-                    print("")
-                    print("")
-                    for book in books:
-                        print(f"{book.name}, {book.author}")
-                    for movie in movies:
-                        print(f"{movie.name}, {movie.director}")
-                    for videoGame in videoGames:
-                        print(f"{videoGame.name}, {videoGame.publisher}")
-                    print("")
-                    print("")
-
-                elif res["choice"] == "Detailed":
-                    print("")
-                    print("")
-                    # print by category and above
-                    print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Books{bcolors.ENDC}")
-                    for book in books:
-                        print(f"{book.name}, {book.author}")
-                    print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Movies{bcolors.ENDC}")
-                    for movie in movies:
-                        print(f"{movie.name}, {movie.director}")
-                    print(
-                        f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Video Games{bcolors.ENDC}"
-                    )
-                    for videoGame in videoGames:
-                        print(f"{videoGame.name}, {videoGame.publisher}")
-                    print("")
-                    print("")
-        # User chooses QUIT
+                userLibrary.displayCol()
         else:
             break
