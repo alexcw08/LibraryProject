@@ -1,8 +1,9 @@
 import os
-
 import inquirer
 import requests
 from dotenv import load_dotenv
+import json
+import socket as s
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
@@ -19,7 +20,6 @@ class bcolors:
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
 
-
 class Library:
     """
     Library class to represent users library collection. Can hold three
@@ -33,12 +33,10 @@ class Library:
 
     def getSummary(self):
         """Prints a summary of the librarys current holdings."""
-        print("")
-        print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
+        print(f"\n{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
         print(
             f"{len(self.books)} Books \n{len(self.movies)} Movies \n{len(self.videoGames)} Video Games \n"
         )
-        print("")
 
     def getLength(self):
         return len(self.books) + len(self.movies) + len(self.videoGames)
@@ -71,10 +69,74 @@ class Library:
         self.videoGames.append(videoGame)
         print(f"{bcolors.OKGREEN}[Success]Video Game successfully added.")
 
+    def importBook(self):
+        print(f"\n{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC}")
+        print("Example: 9780140817744")
+        print(f"Nineteen Eighty-Four, George Orwell \n")
+        isbn = inquirer.prompt(importBook)
+        data = self.callAPI(isbn)
+        self.callMicroservice(data)
+
+    def callAPI(self, isbn):
+        api_url = f"https://www.googleapis.com/books/v1/volumes?q=isbn{isbn}&key={API_KEY}"
+        response = requests.get(api_url)
+        data = response.json()
+        data = data['items'][0]['volumeInfo']
+        data = json.dumps(data)
+        return data
+
+
+    def callMicroservice(self, data):
+
+        # connection to server
+        HOST = 'localhost'
+        PORT = 10103
+        connection_socket = s.socket(s.AF_INET, s.SOCK_STREAM)
+        print(f"Connecting to {HOST}:{PORT}...")
+        connection_socket.connect((HOST, PORT))
+
+        # message
+
+        # send message length
+        # (required for when the server switches roles from recv'ing to send'ing)
+        msg_len = str(len(data))
+        print(f"Sending length of message to server:\n\t{msg_len} characters")
+        connection_socket.send(msg_len.encode())
+        # receive length verification:
+        length_verification = connection_socket.recv(1024).decode()
+
+        if length_verification == msg_len:
+            # send message
+            print(f"Sending the following message to the server:\n\t{data}")
+            connection_socket.send(data.encode())
+            print("Send successful.")
+
+            # recv message
+            full_msg = ""
+            while True:
+                msg = connection_socket.recv(1024).decode()
+                # print(f"Message received:\n\t{msg}")
+                full_msg += msg
+
+                # full message received
+                if not msg:
+
+                    # recv'd message formats
+                    print(f"Full data received as string: {full_msg}")
+                    msg_json = json.loads(full_msg)
+                    # print(f"Jason Object output: {msg_json}")
+                    print("Full message converted to dumped json\n",
+                        json.dumps(msg_json, indent=4))
+
+                    connection_socket.close()
+                    print("Socket closed.")
+                    break
+        else:
+            connection_socket.close()
+            print("Socket closed.")
 
 class Book:
     """Class representing a book item."""
-
     def __init__(self, title:str, author:str, genre:str) -> None:
         self.name = title
         self.author = author
@@ -83,7 +145,6 @@ class Book:
 
 class Movie:
     """Class representing a movie item."""
-
     def __init__(self, title:str, director:str, genre:str) -> None:
         self.name = title
         self.director = director
@@ -92,16 +153,12 @@ class Movie:
 
 class VideoGame:
     """Class representing a video game item."""
-
     def __init__(self, title:str, publisher:str, genre:str) -> None:
         self.name = title
         self.publisher = publisher
         self.genre = genre
 
-
-if __name__ == "__main__":
-    # Array holding user choice question / choices
-    userChoices = [
+userChoices = [
         inquirer.List(
             "choice",
             message=f"{bcolors.UNDERLINE}What would you like to do? {bcolors.ENDC}",
@@ -115,42 +172,43 @@ if __name__ == "__main__":
             ],
         )
     ]
-    # Form arrays
-    bookForm = [
+
+bookForm = [
         inquirer.Text("title", message="What is the title of the book?"),
         inquirer.Text("author", message="Who is the author of the book?"),
         inquirer.Text("genre", message="What is the genre of the book?"),
         inquirer.Confirm("continue", message="Finish submitting this book?"),
-    ]
+]
 
-    importBook = [inquirer.Text("isbn", message="Enter the ISBN for your book")]
-
-    movieForm = [
+movieForm = [
         inquirer.Text("title", message="What is the title of the movie?"),
         inquirer.Text("director", message="Who is the director of the movie?"),
         inquirer.Text("genre", message="What is the genre of the movie?"),
         inquirer.Confirm("continue", message="Finish submitting this movie?"),
-    ]
+]
 
-    videoGameForm = [
+importBook = [inquirer.Text("isbn", message="Enter the ISBN for your book")]
+
+videoGameForm = [
         inquirer.Text("title", message="What is the title of the video game?"),
         inquirer.Text("publisher", message="Who is the publisher of the video game?"),
         inquirer.Text("genre", message="What is the genre of the video game?"),
         inquirer.Confirm("continue", message="Finish submitting this video game?"),
-    ]
+]
 
-    printLibraryQ = [
+printLibraryQ = [
         inquirer.List(
             "choice",
             message=f"{bcolors.UNDERLINE}View options{bcolors.ENDC}",
             choices=["Basic", "Detailed", "Go Back"],
         )
-    ]
+]
+
+if __name__ == "__main__":
 
     userLibrary = Library()
-    print("")
-
     print(f"{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select")
+
     while True:
         userLibrary.getSummary()
         userRes = inquirer.prompt(userChoices)
@@ -164,18 +222,7 @@ if __name__ == "__main__":
                 print(f"{bcolors.FAIL}[Cancelled]Book was not added.")
         # User chooses to add IMPORT A BOOK [USES API]
         elif userRes["choice"] == "[Advanced]Import a book":
-            print("")
-            print(f"{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC}")
-            print("Example: 9780140817744")
-            print("Nineteen Eighty-Four, George Orwell")
-            print("")
-            isbn = inquirer.prompt(importBook)
-            api_url = f"https://www.googleapis.com/books/v1/volumes?q=isbn{isbn}&key={API_KEY}"
-            # print('fetching', api_url)
-            response = requests.get(api_url)
-            print(response)
-            newRes = response.json()
-            print(newRes["items"][0]["volumeInfo"])
+            userLibrary.importBook()
         # User chooses to add MOVIE
         elif userRes["choice"] == "[Form]Add a movie":
             newMovie = inquirer.prompt(movieForm)
