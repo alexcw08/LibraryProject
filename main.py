@@ -8,7 +8,6 @@ import socket as s
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
-
 class bcolors:
     HEADER = "\033[95m"
     OKBLUE = "\033[94m"
@@ -91,20 +90,42 @@ class Library:
         
 
     def importBook(self):
-        print(f"\n{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC}")
-        print("Example: 9780140817744")
+        print(f"\n{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC} \n Example: 9780140817744 \n")
         print(f"Nineteen Eighty-Four, George Orwell \n")
-        isbn = inquirer.prompt(importBook)
-        data = self.callAPI(isbn)
-        self.callMicroservice(data)
+
+        userInput = inquirer.prompt(importBook)
+        while len(userInput['isbn']) != 13:
+            print('length of isbn is', len(userInput['isbn']))
+            print('[Input Error] Please enter a 13 digit ISBN number.')
+            userInput = inquirer.prompt(importBook)
+
+        print(f'{bcolors.OKBLUE}Calling API with isbn {userInput["isbn"]}...{bcolors.ENDC}')
+        data = self.callAPI(userInput['isbn'])
+        
+        # MICROSERVICE CALL
+        print(f'{bcolors.OKBLUE}Calling microservice...{bcolors.ENDC}')
+        microRes = self.callMicroservice(data)
+        print(f'{bcolors.OKBLUE}Data received from microservice: {microRes} {bcolors.ENDC}\n')
+        if 'categories' in microRes:
+            book = Book(microRes['title'], microRes['authors'][0], microRes['categories'][0])
+            print(book)
+            self.books.append(book)
+        else:
+            book = Book(microRes['title'], microRes['author'])
+            self.books.append(book)
+        print(f"{bcolors.OKGREEN}[Success]Book successfully imported. \n")
+
 
     def callAPI(self, isbn):
         api_url = f"https://www.googleapis.com/books/v1/volumes?q=isbn{isbn}&key={API_KEY}"
         response = requests.get(api_url)
-        data = response.json()
-        data = data['items'][0]['volumeInfo']
-        data = json.dumps(data)
-        return data
+        if response.status_code != 200:
+            print('[Error] API Call unsuccessful.')
+        else:
+            data = response.json()
+            data = data['items'][0]['volumeInfo']
+            data = json.dumps(data)
+            return data
 
 
     def callMicroservice(self, data):
@@ -118,16 +139,16 @@ class Library:
         # send message length
         # (required for when the server switches roles from recv'ing to send'ing)
         msg_len = str(len(data))
-        print(f"Sending length of message to server:\n\t{msg_len} characters")
+        # print(f"Sending length of message to server:\n\t{msg_len} characters")
         connection_socket.send(msg_len.encode())
         # receive length verification:
         length_verification = connection_socket.recv(1024).decode()
 
         if length_verification == msg_len:
             # send message
-            print(f"Sending the following message to the server:\n\t{data}")
+            # print(f"Sending the following message to the server:\n\t{data}")
             connection_socket.send(data.encode())
-            print("Send successful.")
+            # print("Send successful.")
 
             # recv message
             full_msg = ""
@@ -140,15 +161,16 @@ class Library:
                 if not msg:
 
                     # recv'd message formats
-                    print(f"Full data received as string: {full_msg}")
+                    # print(f"Full data received as string: {full_msg}")
                     msg_json = json.loads(full_msg)
                     # print(f"Jason Object output: {msg_json}")
-                    print("Full message converted to dumped json\n",
-                        json.dumps(msg_json, indent=4))
+                    # print("Full message converted to dumped json\n",
+                    # json.dumps(msg_json, indent=4))``
 
                     connection_socket.close()
                     print("Socket closed.")
-                    break
+                    return msg_json
+                    # break
         else:
             connection_socket.close()
             print("Socket closed.")
@@ -180,14 +202,12 @@ class Library:
             for videoGame in videoGames:
                 print(f"{videoGame.name}, {videoGame.publisher}")
 
-
 class Book:
     """Class representing a book item."""
-    def __init__(self, title:str, author:str, genre:str) -> None:
+    def __init__(self, title:str, author:str, genre:str = '') -> None:
         self.name = title
         self.author = author
         self.genre = genre
-
 
 class Movie:
     """Class representing a movie item."""
@@ -195,7 +215,6 @@ class Movie:
         self.name = title
         self.director = director
         self.genre = genre
-
 
 class VideoGame:
     """Class representing a video game item."""

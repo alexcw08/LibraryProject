@@ -44,7 +44,8 @@ while True:
             parsed_object = dict()
             parsed_object["title"] = json_object["title"]
             parsed_object["authors"] = json_object["authors"]
-            parsed_object["categories"] = json_object["categories"]
+            if "categories" in json_object:
+                parsed_object["categories"] = json_object["categories"]
 
             # send back parsed object
             print(f"Parsed data to transmit:\n\t{parsed_object}")
