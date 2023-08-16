@@ -29,6 +29,10 @@ class Library:
         self.movies: list[object] = []
         self.videoGames: list[object] = []
 
+    def printWelcome(self):
+        print(f'\nWelcome to Python Media Library v1.0')
+        print(f"{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select \n")
+
     def getSummary(self):
         """Prints a summary of the librarys current holdings."""
         print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
@@ -50,6 +54,59 @@ class Library:
     def getVideoGames(self):
         """Returns the dictionary of video games."""
         return self.videoGames
+
+    def handleAdd(self):
+        """ Prompts user for what they want to add and calls corresponding function.  """
+        addChoice = inquirer.prompt(addChoices)
+
+        if addChoice['choice'] == '[Form]Book':
+            self.addBook()
+        elif addChoice['choice'] == '[Import]Book':
+            self.importBook()
+        elif addChoice['choice'] == '[Form]Movie':
+            self.addMovie()
+        elif addChoice['choice'] == '[Form]Video Game':
+            self.addVideoGame()
+        else:
+            return
+
+    def handleView(self):
+        viewChoice =  inquirer.prompt(viewChoices)
+
+        if viewChoice['choice'] == 'Basic':
+            self.printBasic()
+        elif viewChoice['choice'] == 'Detailed':
+            self.printDetailed()
+        else:
+            return
+
+    def printBasic(self):
+        books = userLibrary.getBooks()
+        movies = userLibrary.getMovies()
+        videoGames = userLibrary.getVideoGames()
+        for book in books:
+            print(f"{book.name}, {book.author}")
+        for movie in movies:
+            print(f"{movie.name}, {movie.director}")
+        for videoGame in videoGames:
+            print(f"{videoGame.name}, {videoGame.publisher}")
+
+    def printDetailed(self):
+        books = userLibrary.getBooks()
+        movies = userLibrary.getMovies()
+        videoGames = userLibrary.getVideoGames()
+
+        print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Books{bcolors.ENDC}")
+        for book in books:
+            print(f"{book.name}, {book.author}")
+        print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Movies{bcolors.ENDC}")
+        for movie in movies:
+            print(f"{movie.name}, {movie.director}")
+        print(
+            f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Video Games{bcolors.ENDC}"
+        )
+        for videoGame in videoGames:
+            print(f"{videoGame.name}, {videoGame.publisher}")
 
     def addBook(self):
         """Takes in a book and adds it to the librarys dictionary."""
@@ -175,33 +232,6 @@ class Library:
             connection_socket.close()
             print("Socket closed.")
     
-    def displayCol(self):
-        res = inquirer.prompt(printLibraryQ)
-        books = userLibrary.getBooks()
-        movies = userLibrary.getMovies()
-        videoGames = userLibrary.getVideoGames()
-        if res["choice"] == "Basic":
-            for book in books:
-                print(f"{book.name}, {book.author}")
-            for movie in movies:
-                print(f"{movie.name}, {movie.director}")
-            for videoGame in videoGames:
-                print(f"{videoGame.name}, {videoGame.publisher}")
-
-        elif res["choice"] == "Detailed":
-            # print by category and above
-            print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Books{bcolors.ENDC}")
-            for book in books:
-                print(f"{book.name}, {book.author}")
-            print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Movies{bcolors.ENDC}")
-            for movie in movies:
-                print(f"{movie.name}, {movie.director}")
-            print(
-                f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Video Games{bcolors.ENDC}"
-            )
-            for videoGame in videoGames:
-                print(f"{videoGame.name}, {videoGame.publisher}")
-
 class Book:
     """Class representing a book item."""
     def __init__(self, title:str, author:str, genre:str = '') -> None:
@@ -228,15 +258,58 @@ userChoices = [
             "choice",
             message=f"{bcolors.UNDERLINE}What would you like to do? {bcolors.ENDC}",
             choices=[
-                "[Form]Add a book",
-                "[Form]Add a movie",
-                "[Form]Add a video game",
-                "[Advanced]Import a book",
-                "View Collection",
-                "Quit",
+                'Add an item',
+                'Remove an item',
+                'Update an item',
+                'View Collection',
+                'Quit'
             ],
-        )
+        ), 
     ]
+
+addChoices = inquirer.List(
+            'choice', 
+            message="What would you like to add? ", 
+            choices=[
+                '[Form]Book',
+                '[Import]Book', 
+                '[Form]Movie', 
+                '[Form]Video Game', 
+                'Go Back'
+            ],
+        ),
+
+removeChoices = inquirer.List(
+            'choice', 
+            message="What would you like to remove? ", 
+            choices=[
+                'Book', 
+                'Movie', 
+                'Video Game', 
+                'Go Back'
+            ],
+        ),
+
+updateChoices = inquirer.List(
+            'choice', 
+            message="What would you like to update? ", 
+            choices=[
+                'Book', 
+                'Movie', 
+                'Video Game', 
+                'Go Back'
+            ],
+        ),
+
+viewChoices = inquirer.List(
+            'choice', 
+            message="View options would you like to remove? ", 
+            choices=[
+                'Basic', 
+                'Detailed', 
+                'Go Back'
+            ],
+        ),
 
 bookForm = [
         inquirer.Text("title", message="What is the title of the book?"),
@@ -271,23 +344,17 @@ printLibraryQ = [
 
 if __name__ == "__main__":
     userLibrary = Library()
-    print(f"{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select")
-
+    userLibrary.printWelcome()
     while True:
         userLibrary.getSummary()
-        userRes = inquirer.prompt(userChoices)
-        if userRes["choice"] == "[Form]Add a book":
-            userLibrary.addBook()
-        elif userRes["choice"] == "[Advanced]Import a book":
-            userLibrary.importBook()
-        elif userRes["choice"] == "[Form]Add a movie":
-            userLibrary.addMovie()
-        elif userRes["choice"] == "[Form]Add a video game":
-            userLibrary.addVideoGame()
-        elif userRes["choice"] == "View Collection":
-            if userLibrary.getLength() == 0:
-                print(f"{bcolors.FAIL}[Error] Sorry, the library is empty.")
-            else:
-                userLibrary.displayCol()
-        else:
+        userChoice = inquirer.prompt(userChoices)
+        if userChoice['choice'] == 'Add an item':
+            userLibrary.handleAdd()                    
+        elif userChoice["choice"] == "Remove an item":
+            pass
+        elif userChoice["choice"] == "Update an item":
+            pass
+        elif userChoice["choice"] == "View Collection":
+            userLibrary.handleView()
+        elif userChoice["choice"] == "Quit":
             break
