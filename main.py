@@ -55,6 +55,10 @@ class Library:
         """Returns the dictionary of video games."""
         return self.videoGames
 
+    def adminAdd(self, book):
+        self.books.append(book)
+
+
     def handleAdd(self):
         """ Prompts user for what they want to add and calls corresponding function.  """
         addChoice = inquirer.prompt(addChoices)
@@ -112,7 +116,7 @@ class Library:
         """Takes in a book and adds it to the librarys dictionary."""
         newBook = inquirer.prompt(bookForm)
         if newBook["continue"] is True:
-            book = Book(newBook["title"], newBook["author"], newBook["genre"])
+            book = Book(newBook["title"], newBook["author"])
             self.books.append(book)
             print(f"{bcolors.OKGREEN}[Success]Book successfully added. \n")
         else:
@@ -123,7 +127,7 @@ class Library:
         newMovie = inquirer.prompt(movieForm)
         if newMovie["continue"] is True:
             movie = Movie(
-                newMovie["title"], newMovie["director"], newMovie["genre"]
+                newMovie["title"], newMovie["director"]
             )
             self.movies.append(movie)
             print(f"{bcolors.OKGREEN}[Success]Movie successfully added. \n")
@@ -138,7 +142,6 @@ class Library:
             videoGame = VideoGame(
                 newVideoGame["title"],
                 newVideoGame["publisher"],
-                newVideoGame["genre"],
             )
             self.videoGames.append(videoGame)
             print(f"{bcolors.OKGREEN}[Success]Video Game successfully added.\n")
@@ -162,14 +165,12 @@ class Library:
         # MICROSERVICE CALL
         print(f'{bcolors.OKBLUE}Calling microservice...{bcolors.ENDC}')
         microRes = self.callMicroservice(data)
-        print(f'{bcolors.OKBLUE}Data received from microservice: {microRes} {bcolors.ENDC}\n')
-        if 'categories' in microRes:
-            book = Book(microRes['title'], microRes['authors'][0], microRes['categories'][0])
-            print(book)
-            self.books.append(book)
-        else:
-            book = Book(microRes['title'], microRes['author'])
-            self.books.append(book)
+        title, author = microRes['title'], microRes['authors'][0]
+        # microRes = self.verifyResponse(microRes)
+        title, author = self.verifyResponse(title, author)
+        # book = Book(microRes['title'], microRes['authors'][0])
+        book = Book(title, author)
+        self.books.append(book)
         print(f"{bcolors.OKGREEN}[Success]Book successfully imported. \n")
 
 
@@ -232,26 +233,38 @@ class Library:
             connection_socket.close()
             print("Socket closed.")
     
+    def verifyResponse(self, title, author):
+        print(f'{bcolors.OKBLUE}Importing book: {title}, {author} {bcolors.ENDC}\n')
+        userVerify = inquirer.prompt(confirmInfo)
+        if userVerify['confirmation'] is False:
+            print('Leave empty for no change.')
+            updateInfo = inquirer.prompt(changeInfo)
+            if updateInfo['title'] == '':
+                author = updateInfo['author']
+                return title, author
+            elif updateInfo['author'] == '':
+                title = updateInfo['title']
+                return title, author
+        return title, author
+
+
 class Book:
     """Class representing a book item."""
-    def __init__(self, title:str, author:str, genre:str = '') -> None:
+    def __init__(self, title:str, author:str) -> None:
         self.name = title
         self.author = author
-        self.genre = genre
 
 class Movie:
     """Class representing a movie item."""
-    def __init__(self, title:str, director:str, genre:str) -> None:
+    def __init__(self, title:str, director:str) -> None:
         self.name = title
         self.director = director
-        self.genre = genre
 
 class VideoGame:
     """Class representing a video game item."""
-    def __init__(self, title:str, publisher:str, genre:str) -> None:
+    def __init__(self, title:str, publisher:str) -> None:
         self.name = title
         self.publisher = publisher
-        self.genre = genre
 
 userChoices = [
         inquirer.List(
@@ -334,16 +347,22 @@ videoGameForm = [
         inquirer.Confirm("continue", message="Finish submitting this video game?"),
 ]
 
-printLibraryQ = [
-        inquirer.List(
-            "choice",
-            message=f"{bcolors.UNDERLINE}View options{bcolors.ENDC}",
-            choices=["Basic", "Detailed", "Go Back"],
-        )
+confirmInfo = [inquirer.Confirm(
+            "confirmation",
+            message="Is the above information correct?",
+        )]
+changeInfo = [
+        inquirer.Text('title', message="Change title to"),
+        inquirer.Text('author', message="Change author to")
 ]
 
 if __name__ == "__main__":
+    book1 = Book('Book One', 'Author One')
+    book2 = Book('Book Two', 'Author Two')
+
     userLibrary = Library()
+    userLibrary.adminAdd(book1)
+    userLibrary.adminAdd(book2)
     userLibrary.printWelcome()
     while True:
         userLibrary.getSummary()
