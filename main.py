@@ -273,7 +273,6 @@ userChoices = [
             choices=[
                 'Add an item',
                 'Remove an item',
-                'Update an item',
                 'View Collection',
                 'Quit'
             ],
@@ -303,16 +302,6 @@ removeChoices = inquirer.List(
             ],
         ),
 
-updateChoices = inquirer.List(
-            'choice', 
-            message="What would you like to update? ", 
-            choices=[
-                'Book', 
-                'Movie', 
-                'Video Game', 
-                'Go Back'
-            ],
-        ),
 
 viewChoices = inquirer.List(
             'choice', 
@@ -370,8 +359,6 @@ if __name__ == "__main__":
         if userChoice['choice'] == 'Add an item':
             userLibrary.handleAdd()                    
         elif userChoice["choice"] == "Remove an item":
-            pass
-        elif userChoice["choice"] == "Update an item":
             pass
         elif userChoice["choice"] == "View Collection":
             userLibrary.handleView()
