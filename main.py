@@ -21,9 +21,10 @@ class bcolors:
 
 class Library:
     """
-    Library class to represent users library collection. Can hold three
-    types of items. Add methods available to add to dictionary.
+    Represents a library collection. Has a list for each type of media that can be added and removed.
+    Also contains print outs of information for user.
     """
+
     def __init__(self) -> None:
         self.books: list[object] = []
         self.movies: list[object] = []
@@ -34,7 +35,7 @@ class Library:
         print(f"{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select \n")
 
     def getSummary(self):
-        """Prints a summary of the librarys current holdings."""
+        """Prints amount of each type of media collection currently has. """
         print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
         print(
             f"{len(self.books)} Books \n{len(self.movies)} Movies \n{len(self.videoGames)} Video Games \n"
@@ -44,18 +45,16 @@ class Library:
         return len(self.books) + len(self.movies) + len(self.videoGames)
 
     def getBooks(self):
-        """Returns the dictionary of books."""
         return self.books
 
     def getMovies(self):
-        """Returns the dictionary of movies."""
         return self.movies
 
     def getVideoGames(self):
-        """Returns the dictionary of video games."""
         return self.videoGames
 
     def testAdd(self, itemType, item):
+        """ FOR DEV PURPOSES - REMOVE AT THE END"""
         if itemType == 'book':
             self.books.append(item)
         elif itemType == 'movie':
@@ -67,9 +66,8 @@ class Library:
 
 
     def handleAdd(self):
-        """ Prompts user for what they want to add and calls corresponding function.  """
+        """ Prompts user and calls respective function based on answer.  """
         addChoice = inquirer.prompt(addChoices)
-        print(addChoice)
         if addChoice['choice'] == '[Form]Book':
             self.addBook()
         elif addChoice['choice'] == '[Import]Book':
@@ -82,6 +80,7 @@ class Library:
             return
 
     def handleRemove(self):
+        """ Prompts user and calls respective function based on answer.  """
         userChoice = inquirer.prompt(removeChoices)
         if userChoice['choice'] == 'Book':
             self.removeBook()
@@ -91,6 +90,7 @@ class Library:
             self.removeVideoGame()
 
     def removeBook(self):
+        """ Prompts user for title of book to be removed and removes from list. """
         removeChoice = inquirer.prompt(removeTitle)
         for book in self.books:
             if removeChoice['removeTitle'] == book.title:
@@ -100,6 +100,7 @@ class Library:
         print('No matching book found.')
 
     def removeMovie(self):
+        """ Prompts user for title of movie to be removed and removes from list. """
         removeChoice = inquirer.prompt(removeTitle)
         for movie in self.movies:
             if removeChoice['removeTitle'] == movie.title:
@@ -109,6 +110,7 @@ class Library:
         print('No matching movie found.')
 
     def removeVideoGame(self):
+        """ Prompts user for title of video game to be removed and removes from list. """
         removeChoice = inquirer.prompt(removeTitle)
         for videoGame in self.videoGames:
             if removeChoice['removeTitle'] == videoGame.title:
@@ -118,8 +120,8 @@ class Library:
         print('No matching video game found.')
 
     def handleView(self):
+        """ Prompts user and calls respective function based on answer.  """
         viewChoice =  inquirer.prompt(viewChoices)
-
         if viewChoice['choice'] == 'Basic':
             self.printBasic()
         elif viewChoice['choice'] == 'Detailed':
@@ -233,55 +235,41 @@ class Library:
         print(f"Connecting to {HOST}:{PORT}...")
         connection_socket.connect((HOST, PORT))
 
-        # send message length
-        # (required for when the server switches roles from recv'ing to send'ing)
         msg_len = str(len(data))
-        # print(f"Sending length of message to server:\n\t{msg_len} characters")
         connection_socket.send(msg_len.encode())
-        # receive length verification:
         length_verification = connection_socket.recv(1024).decode()
 
         if length_verification == msg_len:
-            # send message
-            # print(f"Sending the following message to the server:\n\t{data}")
             connection_socket.send(data.encode())
-            # print("Send successful.")
 
-            # recv message
+            # receive from server
             full_msg = ""
             while True:
                 msg = connection_socket.recv(1024).decode()
-                # print(f"Message received:\n\t{msg}")
                 full_msg += msg
 
-                # full message received
+               # when finished receiving
                 if not msg:
-
-                    # recv'd message formats
-                    # print(f"Full data received as string: {full_msg}")
                     msg_json = json.loads(full_msg)
-                    # print(f"Jason Object output: {msg_json}")
-                    # print("Full message converted to dumped json\n",
-                    # json.dumps(msg_json, indent=4))``
-
                     connection_socket.close()
                     print("Socket closed.")
                     return msg_json
-                    # break
         else:
             connection_socket.close()
             print("Socket closed.")
     
     def verifyResponse(self, title, author):
+        """ Shows the user response from API and allows user to verify and make changes. """
         print(f'{bcolors.OKBLUE}Importing book: {title}, {author} {bcolors.ENDC}\n')
         userVerify = inquirer.prompt(confirmInfo)
+
         if userVerify['confirmation'] is False:
             print('Leave empty for no change.')
             updateInfo = inquirer.prompt(changeInfo)
-            if updateInfo['title'] == '':
+            if updateInfo['title'] == '' and updateInfo['author'] != '':
                 author = updateInfo['author']
                 return title, author
-            elif updateInfo['author'] == '':
+            elif updateInfo['author'] == '' and updateInfo['title'] != '':
                 title = updateInfo['title']
                 return title, author
         return title, author
