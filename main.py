@@ -55,14 +55,21 @@ class Library:
         """Returns the dictionary of video games."""
         return self.videoGames
 
-    def adminAdd(self, book):
-        self.books.append(book)
+    def testAdd(self, itemType, item):
+        if itemType == 'book':
+            self.books.append(item)
+        elif itemType == 'movie':
+            self.movies.append(item)
+        elif itemType == 'videoGame':
+            self.videoGames.append(item)
+        else:
+            return
 
 
     def handleAdd(self):
         """ Prompts user for what they want to add and calls corresponding function.  """
         addChoice = inquirer.prompt(addChoices)
-
+        print(addChoice)
         if addChoice['choice'] == '[Form]Book':
             self.addBook()
         elif addChoice['choice'] == '[Import]Book':
@@ -73,6 +80,42 @@ class Library:
             self.addVideoGame()
         else:
             return
+
+    def handleRemove(self):
+        userChoice = inquirer.prompt(removeChoices)
+        if userChoice['choice'] == 'Book':
+            self.removeBook()
+        elif userChoice['choice'] == 'Movie':
+            self.removeMovie()
+        elif userChoice['choice'] == 'Video Game':
+            self.removeVideoGame()
+
+    def removeBook(self):
+        removeChoice = inquirer.prompt(removeTitle)
+        for book in self.books:
+            if removeChoice['removeTitle'] == book.title:
+                self.books.remove(book)
+                print('Successfully removed book.')
+                return
+        print('No matching book found.')
+
+    def removeMovie(self):
+        removeChoice = inquirer.prompt(removeTitle)
+        for movie in self.movies:
+            if removeChoice['removeTitle'] == movie.title:
+                self.movies.remove(movie)
+                print('Successfully removed movie.')
+                return
+        print('No matching movie found.')
+
+    def removeVideoGame(self):
+        removeChoice = inquirer.prompt(removeTitle)
+        for videoGame in self.videoGames:
+            if removeChoice['removeTitle'] == videoGame.title:
+                self.videoGames.remove(videoGame)
+                print('Successfully removed video game.')
+                return
+        print('No matching video game found.')
 
     def handleView(self):
         viewChoice =  inquirer.prompt(viewChoices)
@@ -89,11 +132,11 @@ class Library:
         movies = userLibrary.getMovies()
         videoGames = userLibrary.getVideoGames()
         for book in books:
-            print(f"{book.name}, {book.author}")
+            print(f"{book.title}, {book.author}")
         for movie in movies:
-            print(f"{movie.name}, {movie.director}")
+            print(f"{movie.title}, {movie.director}")
         for videoGame in videoGames:
-            print(f"{videoGame.name}, {videoGame.publisher}")
+            print(f"{videoGame.title}, {videoGame.publisher}")
 
     def printDetailed(self):
         books = userLibrary.getBooks()
@@ -102,15 +145,15 @@ class Library:
 
         print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Books{bcolors.ENDC}")
         for book in books:
-            print(f"{book.name}, {book.author}")
+            print(f"{book.title}, {book.author}")
         print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Movies{bcolors.ENDC}")
         for movie in movies:
-            print(f"{movie.name}, {movie.director}")
+            print(f"{movie.title}, {movie.director}")
         print(
             f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Video Games{bcolors.ENDC}"
         )
         for videoGame in videoGames:
-            print(f"{videoGame.name}, {videoGame.publisher}")
+            print(f"{videoGame.title}, {videoGame.publisher}")
 
     def addBook(self):
         """Takes in a book and adds it to the librarys dictionary."""
@@ -134,7 +177,6 @@ class Library:
         else:
             print(f"{bcolors.FAIL}[Cancelled]Movie was not added. \n")
 
-
     def addVideoGame(self):
         """Takes in a video game and adds it to the librarys dictionary."""
         newVideoGame = inquirer.prompt(videoGameForm)
@@ -146,8 +188,7 @@ class Library:
             self.videoGames.append(videoGame)
             print(f"{bcolors.OKGREEN}[Success]Video Game successfully added.\n")
         else:
-            print(f"{bcolors.FAIL}[Cancelled]Video game was not added.\n")
-        
+            print(f"{bcolors.FAIL}[Cancelled]Video game was not added.\n")    
 
     def importBook(self):
         print(f"\n{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC} \n Example: 9780140817744 \n")
@@ -173,7 +214,6 @@ class Library:
         self.books.append(book)
         print(f"{bcolors.OKGREEN}[Success]Book successfully imported. \n")
 
-
     def callAPI(self, isbn):
         api_url = f"https://www.googleapis.com/books/v1/volumes?q=isbn{isbn}&key={API_KEY}"
         response = requests.get(api_url)
@@ -184,7 +224,6 @@ class Library:
             data = data['items'][0]['volumeInfo']
             data = json.dumps(data)
             return data
-
 
     def callMicroservice(self, data):
         # connection to server
@@ -251,19 +290,20 @@ class Library:
 class Book:
     """Class representing a book item."""
     def __init__(self, title:str, author:str) -> None:
-        self.name = title
+        self.title = title
         self.author = author
+
 
 class Movie:
     """Class representing a movie item."""
     def __init__(self, title:str, director:str) -> None:
-        self.name = title
+        self.title = title
         self.director = director
 
 class VideoGame:
     """Class representing a video game item."""
     def __init__(self, title:str, publisher:str) -> None:
-        self.name = title
+        self.title = title
         self.publisher = publisher
 
 userChoices = [
@@ -295,13 +335,14 @@ removeChoices = inquirer.List(
             'choice', 
             message="What would you like to remove? ", 
             choices=[
-                'Book', 
+                'Book',
                 'Movie', 
                 'Video Game', 
                 'Go Back'
             ],
         ),
 
+removeTitle = [inquirer.Text('removeTitle', message='Title of item to be removed:')]
 
 viewChoices = inquirer.List(
             'choice', 
@@ -348,10 +389,21 @@ changeInfo = [
 if __name__ == "__main__":
     book1 = Book('Book One', 'Author One')
     book2 = Book('Book Two', 'Author Two')
+    movie1 = Movie('Movie One', 'Director One')
+    movie2 = Movie('Movie Two', 'Director Two')
+    vGame1 = VideoGame('Video Game One', 'Publisher One')
+    vGame2 = VideoGame('Video Game Two', 'Publisher Two')
 
     userLibrary = Library()
-    userLibrary.adminAdd(book1)
-    userLibrary.adminAdd(book2)
+    userLibrary.testAdd('book', book1)
+    userLibrary.testAdd('book', book2)
+    userLibrary.testAdd('movie', movie1)
+    userLibrary.testAdd('movie', movie2)
+    userLibrary.testAdd('videoGame', vGame1)
+    userLibrary.testAdd('videoGame', vGame2)
+
+
+
     userLibrary.printWelcome()
     while True:
         userLibrary.getSummary()
@@ -359,7 +411,7 @@ if __name__ == "__main__":
         if userChoice['choice'] == 'Add an item':
             userLibrary.handleAdd()                    
         elif userChoice["choice"] == "Remove an item":
-            pass
+            userLibrary.handleRemove()
         elif userChoice["choice"] == "View Collection":
             userLibrary.handleView()
         elif userChoice["choice"] == "Quit":
