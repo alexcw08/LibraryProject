@@ -32,11 +32,11 @@ class Library:
 
     def printWelcome(self):
         print(f'\nPython Media Library v1.0')
-        print(f"{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select \n")
+        print(f"{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select")
 
     def getSummary(self):
         """Prints amount of each type of media collection currently has. """
-        print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
+        print(f"\n{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
         print(
             f"{len(self.books)} Books \n{len(self.movies)} Movies \n{len(self.videoGames)} Video Games \n"
         )
@@ -108,14 +108,14 @@ class Library:
     def handleView(self):
         """ Prompts user and calls respective function based on answer.  """
         viewChoice =  inquirer.prompt(viewChoices)
-        if viewChoice['choice'] == 'Basic':
-            self.printBasic()
-        elif viewChoice['choice'] == 'Detailed':
-            self.printDetailed()
+        if viewChoice['choice'] == 'All':
+            self.printAll()
+        elif viewChoice['choice'] == 'By Category':
+            self.printByCategory()
         else:
             return
 
-    def printBasic(self):
+    def printAll(self):
         books = userLibrary.getBooks()
         movies = userLibrary.getMovies()
         videoGames = userLibrary.getVideoGames()
@@ -124,9 +124,9 @@ class Library:
         for movie in movies:
             print(f"{movie.title}, {movie.director}")
         for videoGame in videoGames:
-            print(f"{videoGame.title}, {videoGame.publisher}")
+            print(f"{videoGame.title}, {videoGame.publisher} \n")
 
-    def printDetailed(self):
+    def printByCategory(self):
         books = userLibrary.getBooks()
         movies = userLibrary.getMovies()
         videoGames = userLibrary.getVideoGames()
@@ -134,11 +134,11 @@ class Library:
         print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Books{bcolors.ENDC}")
         for book in books:
             print(f"{book.title}, {book.author}")
-        print(f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Movies{bcolors.ENDC}")
+        print(f"\n{bcolors.OKCYAN}{bcolors.UNDERLINE}Movies{bcolors.ENDC}")
         for movie in movies:
             print(f"{movie.title}, {movie.director}")
         print(
-            f"{bcolors.OKCYAN}{bcolors.UNDERLINE}Video Games{bcolors.ENDC}"
+            f"\n{bcolors.OKCYAN}{bcolors.UNDERLINE}Video Games{bcolors.ENDC}"
         )
         for videoGame in videoGames:
             print(f"{videoGame.title}, {videoGame.publisher}")
@@ -187,7 +187,7 @@ class Library:
             print('length of isbn is', len(userInput['isbn']))
             print('[Input Error] Please enter a 13 digit ISBN number.')
             userInput = inquirer.prompt(importBook)
-            
+
         data = self.callAPI(userInput['isbn'])
         
         # MICROSERVICE CALL
@@ -315,10 +315,10 @@ removeTitle = [inquirer.Text('removeTitle', message='Title of item to be removed
 
 viewChoices = inquirer.List(
             'choice', 
-            message="View options would you like to remove? ", 
+            message="View options", 
             choices=[
-                'Basic', 
-                'Detailed', 
+                'All', 
+                'By Category', 
                 'Go Back'
             ],
         ),
