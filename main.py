@@ -61,8 +61,7 @@ class Library:
             self.movies.append(item)
         elif itemType == 'videoGame':
             self.videoGames.append(item)
-        else:
-            return
+
 
 
     def handleAdd(self):
@@ -70,14 +69,12 @@ class Library:
         addChoice = inquirer.prompt(addChoices)
         if addChoice['choice'] == '[Form]Book':
             self.addBook()
-        elif addChoice['choice'] == '[Import]Book':
+        elif addChoice['choice'] == '[Advanced]Import Book':
             self.importBook()
         elif addChoice['choice'] == '[Form]Movie':
             self.addMovie()
         elif addChoice['choice'] == '[Form]Video Game':
             self.addVideoGame()
-        else:
-            return
 
     def handleRemove(self):
         """ Prompts user and calls respective function based on answer.  """
@@ -312,9 +309,9 @@ addChoices = inquirer.List(
             message="What would you like to add? ", 
             choices=[
                 '[Form]Book',
-                '[Import]Book', 
                 '[Form]Movie', 
                 '[Form]Video Game', 
+                '[Advanced]Import Book', 
                 'Go Back'
             ],
         ),
@@ -345,14 +342,12 @@ viewChoices = inquirer.List(
 bookForm = [
         inquirer.Text("title", message="What is the title of the book?"),
         inquirer.Text("author", message="Who is the author of the book?"),
-        inquirer.Text("genre", message="What is the genre of the book?"),
         inquirer.Confirm("continue", message="Finish submitting this book?"),
 ]
 
 movieForm = [
         inquirer.Text("title", message="What is the title of the movie?"),
         inquirer.Text("director", message="Who is the director of the movie?"),
-        inquirer.Text("genre", message="What is the genre of the movie?"),
         inquirer.Confirm("continue", message="Finish submitting this movie?"),
 ]
 
@@ -361,7 +356,6 @@ importBook = [inquirer.Text("isbn", message="Enter the ISBN for your book")]
 videoGameForm = [
         inquirer.Text("title", message="What is the title of the video game?"),
         inquirer.Text("publisher", message="Who is the publisher of the video game?"),
-        inquirer.Text("genre", message="What is the genre of the video game?"),
         inquirer.Confirm("continue", message="Finish submitting this video game?"),
 ]
 
