@@ -36,7 +36,7 @@ class Library:
 
     def getSummary(self):
         """Prints amount of each type of media collection currently has. """
-        print(f"\n{bcolors.OKCYAN}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
+        print(f"\n{bcolors.OKBLUE}{bcolors.UNDERLINE}My Collection has: {bcolors.ENDC}")
         print(
             f"{len(self.books)} Books \n{len(self.movies)} Movies \n{len(self.videoGames)} Video Games \n"
         )
@@ -149,9 +149,9 @@ class Library:
         if newBook["continue"] is True:
             book = Book(newBook["title"], newBook["author"])
             self.books.append(book)
-            print(f"{bcolors.OKGREEN}[Success]Book successfully added. \n")
+            print(f"{bcolors.OKGREEN}[Success]Book added. \n")
         else:
-            print(f"{bcolors.FAIL}[Cancelled]Book was not added. \n")
+            print(f"{bcolors.FAIL}[Cancelled]Book not added. \n")
 
     def addMovie(self):
         """Takes in a movie and adds it to the librarys dictionary."""
@@ -161,9 +161,9 @@ class Library:
                 newMovie["title"], newMovie["director"]
             )
             self.movies.append(movie)
-            print(f"{bcolors.OKGREEN}[Success]Movie successfully added. \n")
+            print(f"{bcolors.OKGREEN}[Success]Movie added. \n")
         else:
-            print(f"{bcolors.FAIL}[Cancelled]Movie was not added. \n")
+            print(f"{bcolors.FAIL}[Cancelled]Movie not added. \n")
 
     def addVideoGame(self):
         """Takes in a video game and adds it to the librarys dictionary."""
@@ -174,9 +174,9 @@ class Library:
                 newVideoGame["publisher"],
             )
             self.videoGames.append(videoGame)
-            print(f"{bcolors.OKGREEN}[Success]Video Game successfully added.\n")
+            print(f"{bcolors.OKGREEN}[Success]Video Game added.\n")
         else:
-            print(f"{bcolors.FAIL}[Cancelled]Video game was not added.\n")    
+            print(f"{bcolors.FAIL}[Cancelled]Video game not added.\n")    
 
     def importBook(self):
         print(f"\n{bcolors.UNDERLINE}Import a book with an ISBN {bcolors.ENDC} \n Example: 9780140817744 \n")
@@ -198,7 +198,7 @@ class Library:
         # book = Book(microRes['title'], microRes['authors'][0])
         book = Book(title, author)
         self.books.append(book)
-        print(f"{bcolors.OKGREEN}[Success]Book successfully imported. \n")
+        print(f"{bcolors.OKGREEN}[Success]Book imported. \n")
 
     def callAPI(self, isbn):
         api_url = f"https://www.googleapis.com/books/v1/volumes?q=isbn{isbn}&key={API_KEY}"
