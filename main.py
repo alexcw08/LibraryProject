@@ -31,7 +31,7 @@ class Library:
         self.videoGames: list[object] = []
 
     def printWelcome(self):
-        print(f'\nWelcome to Python Media Library v1.0')
+        print(f'\nPython Media Library v1.0')
         print(f"{bcolors.OKGREEN}Use < arrow > to scroll | use < enter > to select \n")
 
     def getSummary(self):
@@ -52,17 +52,6 @@ class Library:
 
     def getVideoGames(self):
         return self.videoGames
-
-    def testAdd(self, itemType, item):
-        """ FOR DEV PURPOSES - REMOVE AT THE END"""
-        if itemType == 'book':
-            self.books.append(item)
-        elif itemType == 'movie':
-            self.movies.append(item)
-        elif itemType == 'videoGame':
-            self.videoGames.append(item)
-
-
 
     def handleAdd(self):
         """ Prompts user and calls respective function based on answer.  """
@@ -92,9 +81,9 @@ class Library:
         for book in self.books:
             if removeChoice['removeTitle'] == book.title:
                 self.books.remove(book)
-                print('Successfully removed book.')
+                print(f'{bcolors.OKGREEN}Successfully removed book. \n')
                 return
-        print('No matching book found.')
+        print(f'{bcolors.FAIL}No matching book found. \n')
 
     def removeMovie(self):
         """ Prompts user for title of movie to be removed and removes from list. """
@@ -102,9 +91,9 @@ class Library:
         for movie in self.movies:
             if removeChoice['removeTitle'] == movie.title:
                 self.movies.remove(movie)
-                print('Successfully removed movie.')
+                print(f'{bcolors.OKGREEN}Successfully removed movie. \n')
                 return
-        print('No matching movie found.')
+        print(f'{bcolors.FAIL}No matching movie found. \n')
 
     def removeVideoGame(self):
         """ Prompts user for title of video game to be removed and removes from list. """
@@ -112,9 +101,9 @@ class Library:
         for videoGame in self.videoGames:
             if removeChoice['removeTitle'] == videoGame.title:
                 self.videoGames.remove(videoGame)
-                print('Successfully removed video game.')
+                print(f'{bcolors.OKGREEN}Successfully removed video game. \n')
                 return
-        print('No matching video game found.')
+        print(f'{bcolors.FAIL}No matching video game found. \n')
 
     def handleView(self):
         """ Prompts user and calls respective function based on answer.  """
@@ -198,12 +187,10 @@ class Library:
             print('length of isbn is', len(userInput['isbn']))
             print('[Input Error] Please enter a 13 digit ISBN number.')
             userInput = inquirer.prompt(importBook)
-
-        print(f'{bcolors.OKBLUE}Calling API with isbn {userInput["isbn"]}...{bcolors.ENDC}')
+            
         data = self.callAPI(userInput['isbn'])
         
         # MICROSERVICE CALL
-        print(f'{bcolors.OKBLUE}Calling microservice...{bcolors.ENDC}')
         microRes = self.callMicroservice(data)
         title, author = microRes['title'], microRes['authors'][0]
         # microRes = self.verifyResponse(microRes)
@@ -217,7 +204,7 @@ class Library:
         api_url = f"https://www.googleapis.com/books/v1/volumes?q=isbn{isbn}&key={API_KEY}"
         response = requests.get(api_url)
         if response.status_code != 200:
-            print('[Error] API Call unsuccessful.')
+            print('[Error] API Call unsuccessful. Try again later.')
         else:
             data = response.json()
             data = data['items'][0]['volumeInfo']
@@ -229,7 +216,6 @@ class Library:
         HOST = 'localhost'
         PORT = 10103
         connection_socket = s.socket(s.AF_INET, s.SOCK_STREAM)
-        print(f"Connecting to {HOST}:{PORT}...")
         connection_socket.connect((HOST, PORT))
 
         msg_len = str(len(data))
@@ -249,15 +235,13 @@ class Library:
                 if not msg:
                     msg_json = json.loads(full_msg)
                     connection_socket.close()
-                    print("Socket closed.")
                     return msg_json
         else:
             connection_socket.close()
-            print("Socket closed.")
     
     def verifyResponse(self, title, author):
         """ Shows the user response from API and allows user to verify and make changes. """
-        print(f'{bcolors.OKBLUE}Importing book: {title}, {author} {bcolors.ENDC}\n')
+        print(f'{bcolors.WARNING}Importing book: {title}, {author} {bcolors.ENDC}\n')
         userVerify = inquirer.prompt(confirmInfo)
 
         if userVerify['confirmation'] is False:
@@ -369,24 +353,9 @@ changeInfo = [
 ]
 
 if __name__ == "__main__":
-    book1 = Book('Book One', 'Author One')
-    book2 = Book('Book Two', 'Author Two')
-    movie1 = Movie('Movie One', 'Director One')
-    movie2 = Movie('Movie Two', 'Director Two')
-    vGame1 = VideoGame('Video Game One', 'Publisher One')
-    vGame2 = VideoGame('Video Game Two', 'Publisher Two')
-
     userLibrary = Library()
-    userLibrary.testAdd('book', book1)
-    userLibrary.testAdd('book', book2)
-    userLibrary.testAdd('movie', movie1)
-    userLibrary.testAdd('movie', movie2)
-    userLibrary.testAdd('videoGame', vGame1)
-    userLibrary.testAdd('videoGame', vGame2)
-
-
-
     userLibrary.printWelcome()
+
     while True:
         userLibrary.getSummary()
         userChoice = inquirer.prompt(userChoices)
